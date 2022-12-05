@@ -1,5 +1,5 @@
  module "onprem-dns-forwarding-zone" {
-  source     = "https://github.com/terraform-google-modules/terraform-google-cloud-dns"
+  source     = "github.com/terraform-google-modules/terraform-google-cloud-dns"
   for_each = {for entry in var.onprem_dns_entries:  entry.name => entry}
   name       = each.value.name
   domain     = each.value.domain
@@ -12,7 +12,7 @@
 
 
 module "onprem-dns-peering-zone" {
-  source                             = "https://github.com/terraform-google-modules/terraform-google-cloud-dns"
+  source                             = "github.com/terraform-google-modules/terraform-google-cloud-dns"
   for_each = {for entry in var.dns_entries:  entry.name => entry}
   project_id                         = var.non_prod_project_id
   type                               = "peering"
@@ -24,7 +24,7 @@ module "onprem-dns-peering-zone" {
 }
 
 module "gcp-dns-private-zone" {
-  source     = "https://github.com/terraform-google-modules/terraform-google-cloud-dns"
+  source     = "github.com/terraform-google-modules/terraform-google-cloud-dns"
 
  for_each = {for entry in var.gcp_dns_entries:  entry.name => entry}
 
@@ -40,7 +40,7 @@ module "gcp-dns-private-zone" {
 }
 
 module "gcp-dns-peering-zone" {
-  source                             = "https://github.com/terraform-google-modules/terraform-google-cloud-dns"
+  source                             = "github.com/terraform-google-modules/terraform-google-cloud-dns"
   for_each = {for entry in var.gcp_dns_entries:  entry.name => entry}
   project_id                         = var.non_prod_project_id
   type                               = "peering"

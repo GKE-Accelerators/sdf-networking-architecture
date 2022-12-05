@@ -23,28 +23,18 @@ variable "onprem_dns_entries" {
             forwarding_path = string
         }))
   }))
-  default = [
-    {
-      domain             = "corp.example.com"
-      name               = "corp"
-      target_name_servers = [
-        {
-          ipv4_address    = "192.168.0.56",
-          forwarding_path = "default"
-        }
-      ],
-    },
-    {
-      domain             = "corp1.example.com"
-      name               = "corp1"
-      target_name_servers = [
-        {
-          ipv4_address    = "192.168.0.57",
-          forwarding_path = "default"
-        }
-      ],
-    },
-  ]
+#   default = [
+#     {
+#       domain             = "corp.example.com"
+#       name               = "corp"
+#       target_name_servers = [
+#         {
+#           ipv4_address    = "192.168.0.56",
+#           forwarding_path = "default"
+#         }
+#       ],
+#     }
+#   ]
 }
 
 variable "network_self_links" {
@@ -110,36 +100,21 @@ variable "gcp_dns_entries" {
             records = list(string)
         }))
   }))
-  default = [
-    {
-      domain             = "gcp.corp.example.com"
-      name               = "corp"
-      private_visibility_config_networks = ["exmaple.selflink"]
-      [
-        {
-            name = "ns"
-            type = "A"
-            ttl  = 300
-            records = [
-                "127.0.0.1",
-            ]
-        }
-      ]   
-    },
-    {
-      domain             = "corp1.example.com"
-      name               = "corp1"
-      private_visibility_config_networks = ["exmaple1.selflink"]
-      [
-        {
-            name = "ns"
-            type = "A"
-            ttl  = 300
-            records = [
-                "127.0.0.2",
-            ]
-        }
-      ]
-    },
-  ]
+#   default = [
+#     {
+#       domain             = "gcp.corp.example.com"
+#       name               = "corp"
+#       private_visibility_config_networks = ["exmaple.selflink"]
+#       record_sets = [
+#         {
+#             name = "ns"
+#             type = "A"
+#             ttl  = 300
+#             records = [
+#                 "127.0.0.1",
+#             ]
+#         }
+#       ]   
+#     },
+#   ]
 }
