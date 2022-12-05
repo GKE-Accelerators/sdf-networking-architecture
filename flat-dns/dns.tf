@@ -25,17 +25,13 @@ module "onprem-dns-peering-zone" {
 
 module "gcp-dns-private-zone" {
   source = "github.com/terraform-google-modules/terraform-google-cloud-dns"
-
   for_each = { for entry in var.gcp_dns_entries : entry.name => entry }
-
   project_id = var.prod_host_project_id
   type       = "private"
   name       = each.value.name
   domain     = each.value.domain
   labels     = each.value.labels
-
   private_visibility_config_networks = each.value.private_visibility_config_networks
-
   recordsets = each.value.record_sets
 }
 
