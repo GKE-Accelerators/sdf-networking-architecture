@@ -1,3 +1,13 @@
+variable "region" {
+  type        = string
+  description = "GCP region"
+}
+
+variable "zone" {
+  type        = string
+  description = "GCP zone"
+}
+
 variable "prod_host_project_id" {
   type        = string
   description = "Production host porject id"
