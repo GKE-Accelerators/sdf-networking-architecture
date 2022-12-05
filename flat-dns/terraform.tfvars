@@ -1,3 +1,7 @@
+region              = "asia-south1"
+
+zone                = "asia-south1-a"
+
 prod_host_project_id = "test-host-prod"
 
 non_prod_project_id = "test-host-non-prod"
