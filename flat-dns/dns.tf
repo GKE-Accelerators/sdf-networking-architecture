@@ -16,7 +16,7 @@
 
 module "onprem-dns-forwarding-zone" {
   source                             = "github.com/terraform-google-modules/terraform-google-cloud-dns"
-  for_each                           = { for entry in var.onprem_dns_entries : entry.name => entry }
+  for_each                           = { for entry in var.onprem_dns_zones : entry.name => entry }
   name                               = each.value.name
   domain                             = each.value.domain
   labels                             = each.value.labels
@@ -29,7 +29,7 @@ module "onprem-dns-forwarding-zone" {
 
 module "onprem-dns-peering-zone" {
   source                             = "github.com/terraform-google-modules/terraform-google-cloud-dns"
-  for_each                           = { for entry in var.onprem_dns_entries : entry.name => entry }
+  for_each                           = { for entry in var.onprem_dns_zones : entry.name => entry }
   project_id                         = var.non_prod_project_id
   type                               = "peering"
   name                               = each.value.name
@@ -44,25 +44,25 @@ module "onprem-dns-peering-zone" {
 
 module "gcp-dns-private-zone" {
   source                             = "github.com/terraform-google-modules/terraform-google-cloud-dns"
-  for_each                           = { for entry in var.gcp_dns_entries : entry.name => entry }
-  project_id                         = var.prod_host_project_id
+  for_each                           = { for entry in var.gcp_dns_zones : entry.name => entry }
+  project_id                         = each.value.project_id
   type                               = "private"
   name                               = each.value.name
   domain                             = each.value.domain
   labels                             = each.value.labels
-  private_visibility_config_networks = [var.prod_host_vpc_link]
+  private_visibility_config_networks = each.value.private_visibility_config_networks
   recordsets                         = each.value.record_sets
 }
 
 module "gcp-dns-peering-zone" {
   source                             = "github.com/terraform-google-modules/terraform-google-cloud-dns"
-  for_each                           = { for entry in var.gcp_dns_entries : entry.name => entry }
-  project_id                         = var.non_prod_project_id
+  for_each                           = { for peering in var.gcp_dns_peerings : peering.name => peering }
+  project_id                         = each.value.project_id
   type                               = "peering"
   name                               = each.value.name
   domain                             = each.value.domain
-  private_visibility_config_networks = [var.non_prod_vpc_link]
-  target_network                     = var.prod_host_vpc_link
+  private_visibility_config_networks = each.value.private_visibility_config_networks
+  target_network                     = each.value.target_network
   labels                             = each.value.labels
   depends_on = [
     module.gcp-dns-private-zone

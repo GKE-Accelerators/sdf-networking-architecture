@@ -26,7 +26,7 @@ prod_host_vpc_link = "projects/mineral-anchor-361313/global/networks/test"
 
 non_prod_vpc_link = "projects/testm4cehost/global/networks/default"
 
-onprem_dns_entries = [
+onprem_dns_zones = [
   {
     domain = "corp1.example.com."
     name   = "corp1"
@@ -54,16 +54,31 @@ onprem_dns_entries = [
       owner   = "foo1"
       version = "bar1"
     }
+  },
+  {
+    domain = "corp3.example.com."
+    name   = "corp3"
+    target_name_servers = [
+      {
+        ipv4_address    = "192.168.0.58",
+        forwarding_path = "default"
+      }
+    ],
+    labels = {
+      owner   = "foo1"
+      version = "bar1"
+    }
   }
 ]
 
 network_self_links = []
 
-gcp_dns_entries = [
+gcp_dns_zones = [
   {
-    domain                             = "gcp.corp1.example.com."
-    name                               = "gcp-corp1"
-    private_visibility_config_networks = ["projects/testm4cehost/global/networks/default"]
+    domain                             = "prod.gcp.example.com."
+    name                               = "prod-gcp"
+    project_id                         = "mineral-anchor-361313"
+    private_visibility_config_networks = ["projects/mineral-anchor-361313/global/networks/test"]
     record_sets = [
       {
         name = "ns"
@@ -80,8 +95,9 @@ gcp_dns_entries = [
     }
   },
   {
-    domain                             = "gcp.corp2.example.com."
-    name                               = "gcp-corp2"
+    domain                             = "nonprod.gcp.example.com."
+    name                               = "nonprod-gcp"
+    project_id                         = "testm4cehost"
     private_visibility_config_networks = ["projects/testm4cehost/global/networks/default"]
     record_sets = [
       {
@@ -93,6 +109,63 @@ gcp_dns_entries = [
         ]
       }
     ]
+    labels = {
+      owner   = "foo"
+      version = "bar"
+    }
+  },
+  {
+    domain                             = "dev.gcp.example.com."
+    name                               = "dev-gcp"
+    project_id                         = "testm4cehost"
+    private_visibility_config_networks = ["projects/testm4cehost/global/networks/default"]
+    record_sets = [
+      {
+        name = "ns"
+        type = "A"
+        ttl  = 300
+        records = [
+          "127.0.0.3",
+        ]
+      }
+    ]
+    labels = {
+      owner   = "foo"
+      version = "bar"
+    }
+  },
+]
+
+
+gcp_dns_peerings = [
+  {
+    domain                             = "prod.gcp.example.com."
+    name                               = "prod-gcp-peering"
+    project_id                         = "testm4cehost"
+    target_network                     = "projects/mineral-anchor-361313/global/networks/test"
+    private_visibility_config_networks = ["projects/testm4cehost/global/networks/default"]
+    labels = {
+      owner   = "foo"
+      version = "bar"
+    }
+  },
+  {
+    domain                             = "nonprod.gcp.example.com."
+    name                               = "nonprod-gcp-peering"
+    project_id                         = "mineral-anchor-361313"
+    target_network                     = "projects/testm4cehost/global/networks/default"
+    private_visibility_config_networks = ["projects/mineral-anchor-361313/global/networks/test"]
+    labels = {
+      owner   = "foo"
+      version = "bar"
+    }
+  },
+  {
+    domain                             = "dev.gcp.example.com."
+    name                               = "dev-gcp-peering"
+    project_id                         = "mineral-anchor-361313"
+    target_network                     = "projects/testm4cehost/global/networks/default"
+    private_visibility_config_networks = ["projects/mineral-anchor-361313/global/networks/test"]
     labels = {
       owner   = "foo"
       version = "bar"

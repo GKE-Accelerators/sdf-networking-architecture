@@ -44,7 +44,7 @@ variable "non_prod_vpc_link" {
   description = "Non Prod porject vpc self link"
 }
 
-variable "onprem_dns_entries" {
+variable "onprem_dns_zones" {
   type = list(object({
     name   = string
     domain = string
@@ -83,11 +83,12 @@ variable "private_visibility_config_networks" {
 }
 
 
-variable "gcp_dns_entries" {
+variable "gcp_dns_zones" {
   type = list(object({
     name                               = string
     domain                             = string
     labels                             = map(any)
+    project_id                         = string
     private_visibility_config_networks = list(string)
     record_sets = list(object({
       name    = string
@@ -96,25 +97,16 @@ variable "gcp_dns_entries" {
       records = list(string)
     }))
   }))
-  default = [
-    {
-      domain                             = "gcp.corp.example.com."
-      name                               = "corp"
-      private_visibility_config_networks = ["exmaple.selflink"]
-      record_sets = [
-        {
-          name = "ns"
-          type = "A"
-          ttl  = 300
-          records = [
-            "127.0.0.1",
-          ]
-        }
-      ]
-      labels = {
-        owner   = "foo"
-        version = "bar"
-      }
-    },
-  ]
+}
+
+
+variable "gcp_dns_peerings" {
+  type = list(object({
+    name                               = string
+    domain                             = string
+    labels                             = map(any)
+    project_id                         = string
+    private_visibility_config_networks = list(string)
+    target_network                     = string
+  }))
 }
