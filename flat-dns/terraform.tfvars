@@ -18,17 +18,17 @@ region = "asia-south1"
 
 zone = "asia-south1-a"
 
-prod_host_project_id = "test-host-prod"
+prod_host_project_id = "mineral-anchor-361313"
 
-non_prod_project_id = "test-host-non-prod"
+non_prod_project_id = "testm4cehost"
 
-prod_host_vpc_link = "test-prod-vpc-selflink"
+prod_host_vpc_link = "projects/mineral-anchor-361313/global/networks/test"
 
-non_prod_vpc_link = "test-non-prod-vpc-selflink"
+non_prod_vpc_link = "projects/testm4cehost/global/networks/default"
 
 onprem_dns_entries = [
   {
-    domain = "corp1.example.com"
+    domain = "corp1.example.com."
     name   = "corp1"
     target_name_servers = [
       {
@@ -42,7 +42,7 @@ onprem_dns_entries = [
     }
   },
   {
-    domain = "corp2.example.com"
+    domain = "corp2.example.com."
     name   = "corp2"
     target_name_servers = [
       {
@@ -63,7 +63,7 @@ gcp_dns_entries = [
   {
     domain                             = "gcp.corp1.example.com."
     name                               = "gcp-corp1"
-    private_visibility_config_networks = ["exmaple.selflink1"]
+    private_visibility_config_networks = ["projects/testm4cehost/global/networks/default"]
     record_sets = [
       {
         name = "ns"
@@ -82,7 +82,7 @@ gcp_dns_entries = [
   {
     domain                             = "gcp.corp2.example.com."
     name                               = "gcp-corp2"
-    private_visibility_config_networks = ["exmaple.selflink2"]
+    private_visibility_config_networks = ["projects/testm4cehost/global/networks/default"]
     record_sets = [
       {
         name = "ns"
