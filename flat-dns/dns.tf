@@ -18,37 +18,77 @@
 /* Forwarding Zone */ 
 module "dns-forwarding-zone" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
-  project_id      = var.project_id
+  for_each        = { for zone in var.dns_zones : zone.name => zone }
+  project_id      = var.prod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [module.prod_vpc.self_link]
+  forwarders      = each.value.forwarders
   type            = "forwarding"
-  name            = var.name
-  domain          = var.domain
-  client_networks = [module.vpc.self_link]
-  forwarders      = { "10.0.1.1" = null, "1.2.3.4" = "private" }
 }
 
 
 /* Peering Zone */ 
 module "dns-peering-zone" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
-  project_id      = var.project_id
+  for_each        = { for zone in var.dns_zones : zone.name => zone }
+  project_id      = var.non_prod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [ module.non_prod_vpc.self_link ]
+  peer_network    = module.prod_vpc.self_link
   type            = "peering"
-  name            = var.name
-  domain          = var.domain
-  client_networks = [module.vpc.self_link]
-  peer_network    = module.vpc2.self_link
+  depends_on = [
+    module.dns-forwarding-zone
+  ]
   
 }
 
 
 /* Private Zone */ 
-module "dns-private-zone-prod" {
+module "dns-private-zone" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
-  project_id      = var.project_id
+  for_each        = { for zone in var.private_zones : zone.name => zone }
+  project_id      = each.value.project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = each.value.client_networks
+  recordsets      = each.value.record_sets  
   type            = "private"
-  name            = var.name
-  domain          = var.domain
-  client_networks = [module.vpc.self_link]
-  recordsets = {
-    "A localhost" = { ttl = 300, records = ["127.0.0.1"] }
+  depends_on = [
+    module.dns-forwarding-zone,
+    module.dns-peering-zone
+  ]
+}
+
+
+/* Inbound DNS Server Policy */ 
+resource "google_dns_policy" "inbound" {
+  project                   = var.prod_host_project_id
+  name                      = var.inbound_policy_name
+  enable_inbound_forwarding = true
+  networks {
+    network_url = module.prod_vpc.self_link
   }
+  depends_on = [
+    module.dns-forwarding-zone
+  ]
+}
+
+
+/* Custom Cloud Router */ 
+resource "google_compute_router" "router" {
+  name    = "custom-router"
+  project = var.prod_host_project_id
+  network = module.prod_vpc.name
+  region  = var.region
+  bgp {
+    asn               = 64514
+    advertise_mode    = "CUSTOM"
+    advertised_groups = ["ALL_SUBNETS"]
+    advertised_ip_ranges {
+      range = "35.199.192.0/19"
+    }
+  }
+  
 }
