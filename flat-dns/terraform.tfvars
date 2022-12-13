@@ -15,8 +15,8 @@
  */
 
 
-prod_host_project_id       = "project-b-364018"
-non_prod_host_project_id   = "project-c-364018"
+prod_host_project_id       = "PROD_HOST_PROJECT_ID"
+non_prod_host_project_id   = "NON_PROD_HOST_PROJECT_ID"
 inbound_policy_name        = "gcp-inbound"
 region = "europe-west1"
 dns_zones           = [
