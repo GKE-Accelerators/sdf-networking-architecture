@@ -29,26 +29,6 @@ variable "description" {
   default     = "Terraform managed."
 }
 
-variable "dnssec_config" {
-  description = "DNSSEC configuration for this zone."
-  type = object({
-    non_existence = optional(string, "nsec3")
-    state         = string
-    key_signing_key = optional(object(
-      { algorithm = string, key_length = number }),
-      { algorithm = "rsasha256", key_length = 2048 }
-    )
-    zone_signing_key = optional(object(
-      { algorithm = string, key_length = number }),
-      { algorithm = "rsasha256", key_length = 1024 }
-    )
-  })
-  default = {
-    state = "off"
-  }
-  nullable = false
-}
-
 variable "dns_zones" {
   type = list(object({
     name       = string
@@ -166,12 +146,6 @@ variable "recordsets" {
     ])
     error_message = "Only one of records, wrr_routing or geo_routing can be defined for each recordset."
   }
-}
-
-variable "service_directory_namespace" {
-  description = "Service directory namespace id (URL), only valid for 'service-directory' zone types."
-  type        = string
-  default     = null
 }
 
 variable "type" {

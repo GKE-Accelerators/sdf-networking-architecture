@@ -90,5 +90,5 @@ resource "google_compute_router" "router" {
       range = "35.199.192.0/19"
     }
   }
-  
+
 }
