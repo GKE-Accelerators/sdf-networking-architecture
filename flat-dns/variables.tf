@@ -1,0 +1,112 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+variable "region" {
+  type        = string
+  description = "GCP region"
+}
+
+variable "zone" {
+  type        = string
+  description = "GCP zone"
+}
+
+variable "prod_host_project_id" {
+  type        = string
+  description = "Production host porject id"
+}
+
+variable "non_prod_project_id" {
+  type        = string
+  description = "Production host porject id"
+}
+
+variable "prod_host_vpc_link" {
+  type        = string
+  description = "Production host porject vpc self link"
+}
+
+variable "non_prod_vpc_link" {
+  type        = string
+  description = "Non Prod porject vpc self link"
+}
+
+variable "onprem_dns_zones" {
+  type = list(object({
+    name   = string
+    domain = string
+    labels = map(any)
+    target_name_servers = list(object({
+      ipv4_address    = string,
+      forwarding_path = string
+    }))
+  }))
+  default = [
+    {
+      domain = "corp.example.com"
+      name   = "corp"
+      target_name_servers = [
+        {
+          ipv4_address    = "192.168.0.56",
+          forwarding_path = "default"
+        }
+      ],
+      labels = {
+        owner   = "foo"
+        version = "bar"
+      }
+    }
+  ]
+}
+
+variable "network_self_links" {
+  description = "Self link of the network that will be allowed to query the zone."
+  default     = []
+}
+
+variable "private_visibility_config_networks" {
+  description = "Self link of the network that will be allowed to query the zone."
+  default     = []
+}
+
+
+variable "gcp_dns_zones" {
+  type = list(object({
+    name                               = string
+    domain                             = string
+    labels                             = map(any)
+    project_id                         = string
+    private_visibility_config_networks = list(string)
+    record_sets = list(object({
+      name    = string
+      type    = string
+      ttl     = number
+      records = list(string)
+    }))
+  }))
+}
+
+
+variable "gcp_dns_peerings" {
+  type = list(object({
+    name                               = string
+    domain                             = string
+    labels                             = map(any)
+    project_id                         = string
+    private_visibility_config_networks = list(string)
+    target_network                     = string
+  }))
+}
