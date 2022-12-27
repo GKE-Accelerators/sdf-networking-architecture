@@ -48,24 +48,18 @@ variable "inbound_policy_name" {
   type        = string
 }
 
-# variable "private_zones" {
-#   description = "List of Cloud DNS private zones to create."
-#   type = list(object({
-#     name            = string
-#     domain          = string
-#     project_id      = string
-#     client_networks = list(string)
-#     record_sets = map(object({
-#       ttl     = optional(number, 300)
-#       records = optional(list(string))
-#       geo_routing = optional(list(object({
-#         location = string
-#         records  = list(string)
-#       })))
-#       wrr_routing = optional(list(object({
-#         weight  = number
-#         records = list(string)
-#       })))
-#     }))
-#   }))
-# }
+variable "prod_private_zones" {
+  description = "List of Cloud DNS private zones to create in Prod host project."
+  type = list(object({
+    name            = string
+    domain          = string
+  }))
+}
+
+variable "nonprod_private_zones" {
+  description = "List of Cloud DNS private zones to create in Non-prod host project."
+  type = list(object({
+    name            = string
+    domain          = string
+  }))
+}

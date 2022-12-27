@@ -24,7 +24,11 @@ data "google_compute_network" "nonprod_shared_vpc" {
   project = var.nonprod_host_project_id
 }
 
-/* Forwarding Zone */
+/***************************************************************
+  Forwarding Zones
+ **************************************************************/
+
+/* Forwarding zone in prod host project */
 module "dns-forwarding-zone" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
   for_each        = { for zone in var.forwarding_zones : zone.name => zone }
@@ -39,7 +43,7 @@ module "dns-forwarding-zone" {
   type = "forwarding"
 }
 
-/* Peering Zone */
+/* Peering zone for on-prem DNS in nonprod host targeting prod vpc */
 module "dns-peering-zone" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
   for_each        = { for zone in var.forwarding_zones : zone.name => zone }
@@ -54,23 +58,72 @@ module "dns-peering-zone" {
   ]
 }
 
-# /* Private Zone */
-# module "dns-private-zone" {
-#   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
-#   for_each        = { for zone in var.private_zones : zone.name => zone }
-#   project_id      = each.value.project_id
-#   name            = each.value.name
-#   domain          = each.value.domain
-#   client_networks = each.value.client_networks
-#   recordsets      = each.value.record_sets
-#   type            = "private"
-#   depends_on = [
-#     module.dns-forwarding-zone,
-#     module.dns-peering-zone
-#   ]
-# }
+/***************************************************************
+  Prod Private Zones
+ **************************************************************/
 
-/* Inbound DNS Server Policy */
+/* Private zones in prod host project */
+module "dns-prod-private-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.prod_private_zones : zone.name => zone }
+  project_id      = var.prod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [data.google_compute_network.prod_shared_vpc.self_link]
+  recordsets      = lookup(each.value, "record_sets", {})
+  type            = "private"
+}
+
+/* Peering zone in nonprod host targeting prod vpc */
+module "nonprod-peering-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.prod_private_zones : zone.name => zone }
+  project_id      = var.nonprod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [data.google_compute_network.nonprod_shared_vpc.self_link]
+  peer_network    = data.google_compute_network.prod_shared_vpc.self_link
+  type            = "peering"
+  depends_on = [
+    module.dns-prod-private-zone
+  ]
+}
+
+/***************************************************************
+  Non-Prod Private Zones
+ **************************************************************/
+
+/* Private zones in nonprod host project */
+module "dns-nonprod-private-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.nonprod_private_zones : zone.name => zone }
+  project_id      = var.nonprod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [data.google_compute_network.nonprod_shared_vpc.self_link]
+  recordsets      = lookup(each.value, "record_sets", {})
+  type            = "private"
+}
+
+/* Peering zone in prod host targeting nonprod vpc */
+module "prod-peering-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.nonprod_private_zones : zone.name => zone }
+  project_id      = var.prod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [data.google_compute_network.prod_shared_vpc.self_link]
+  peer_network    = data.google_compute_network.nonprod_shared_vpc.self_link
+  type            = "peering"
+  depends_on = [
+    module.dns-nonprod-private-zone
+  ]
+}
+
+/***************************************************************
+  Inbound DNS Server Policy
+ **************************************************************/
+
 resource "google_dns_policy" "inbound" {
   project                   = var.prod_host_project_id
   name                      = var.inbound_policy_name

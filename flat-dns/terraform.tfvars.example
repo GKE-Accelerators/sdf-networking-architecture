@@ -33,27 +33,24 @@ forwarding_zones = [
   }
 ]
 
-# private_zones = [
-#   {
-#     domain          = "prod.gcp.example.com."
-#     name            = "prod"
-#     project_id      = "PROD_HOST_PROJECT_ID"
-#     client_networks = ["projects/PROD_HOST_PROJECT_ID/global/networks/PROD_SHARED_VPC_NAME"]
-#     record_sets = {
-#       "A localhost" = { records = ["127.0.0.1"] }
-#       "A myhost"    = { ttl = 600, records = ["10.0.0.120"] }
-#     }
-#   },
-#   {
-#     domain          = "dev.gcp.example.com."
-#     name            = "nonprod"
-#     project_id      = "NONPROD_HOST_PROJECT_ID"
-#     client_networks = ["projects/NONPROD_HOST_PROJECT_ID/global/networks/NONPROD_SHARED_VPC_NAME"]
-#     record_sets = {
-#       "A localhost" = { records = ["127.0.0.1"] }
-#       "A myhost"    = { ttl = 550, records = ["10.0.0.120"] }
-#     }
-#   }
-# ]
+prod_private_zones = [
+  {
+    domain          = "prod1.gcp.example.com."
+    name            = "prod1"
+  },
+  {
+    domain          = "prod2.gcp.example.com."
+    name            = "prod2"
+  }
+]
 
-
+nonprod_private_zones = [
+  {
+    domain          = "dev1.gcp.example.com."
+    name            = "dev1"
+  },
+  {
+    domain          = "dev2.gcp.example.com."
+    name            = "dev2"
+  }
+]
