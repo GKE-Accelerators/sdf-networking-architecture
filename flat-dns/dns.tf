@@ -44,20 +44,84 @@ module "dns-peering-zone" {
   
 }
 
+# /* Private Zone */ 
+# module "dns-private-zone" {
+#   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+#   for_each        = { for zone in var.private_zones : zone.name => zone }
+#   project_id      = each.value.project_id
+#   name            = each.value.name
+#   domain          = each.value.domain
+#   client_networks = each.value.client_networks
+#   recordsets      = each.value.record_sets  
+#   type            = "private"
+#   depends_on = [
+#     module.dns-forwarding-zone,
+#     module.dns-peering-zone
+#   ]
+# }
 
-/* Private Zone */ 
-module "dns-private-zone" {
+/* Prod Private Zone */
+module "dns-prod-private-zone" {
   source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
-  for_each        = { for zone in var.private_zones : zone.name => zone }
+  for_each        = { for zone in var.prod_private_zones : zone.name => zone }
   project_id      = each.value.project_id
   name            = each.value.name
   domain          = each.value.domain
-  client_networks = each.value.client_networks
-  recordsets      = each.value.record_sets  
+  client_networks = data.google_compute_network.prod_shared_vpc.self_link
+  recordsets      = each.value.record_sets
+  type            = "private"
+  depends_on = [
+    module.dns-forwarding-zone,
+    module.prod-peering-zone
+  ]
+}
+
+
+/* Prod Peering Zone */
+module "prod-peering-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.prod_private_zones : zone.name => zone }
+  project_id      = var.nonprod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [data.google_compute_network.nonprod_shared_vpc.self_link]
+  peer_network    = data.google_compute_network.prod_shared_vpc.self_link
+  type            = "peering"
+  depends_on = [
+    module.dns-prod-private-zone
+  ]
+}
+
+
+/* NonProd Private Zone */
+module "dns-nonprod-private-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.nonprod_private_zones : zone.name => zone }
+  project_id      = each.value.project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = data.google_compute_network.prod_shared_vpc.self_link
+  recordsets      = each.value.record_sets
   type            = "private"
   depends_on = [
     module.dns-forwarding-zone,
     module.dns-peering-zone
+  ]
+}
+
+
+/* NonProd Peering Zone */
+module "nonprod-peering-zone" {
+  source          = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/dns?ref=v18.0.0"
+  for_each        = { for zone in var.nonprod_private_zones : zone.name => zone }
+  project_id      = var.nonprod_host_project_id
+  name            = each.value.name
+  domain          = each.value.domain
+  client_networks = [data.google_compute_network.prod_shared_vpc.self_link]
+  peer_network    = data.google_compute_network.nonprod_shared_vpc.self_link
+  type            = "peering"
+  depends_on = [
+    module.dns-nonprod-private-zone
   ]
 }
 
