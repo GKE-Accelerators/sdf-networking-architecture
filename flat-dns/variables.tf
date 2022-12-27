@@ -15,12 +15,12 @@
  */
 
 variable "prod_host_project_id" {
-  description = "Project id for the zone."
+  description = "Prod host project ID."
   type        = string
 }
 
 variable "nonprod_host_project_id" {
-  description = "Project id for the zone."
+  description = "Non-prod host project ID."
   type        = string
 }
 
