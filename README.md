@@ -3,8 +3,6 @@
 ## Introduction 
 This architecture displays a use case where you have separate production and development environments that do not communicate with each other, but they share DNS servers.
 
-This repo contains the following
-(Terraform code)[] 
 
 ## Architecture
 ![architecture diagram](https://raw.githubusercontent.com/GKE-Accelerators/sdf-networking-architecture/main/architecture_diagram.svg "Figure 1")
@@ -30,14 +28,15 @@ The architecture assumes that the following configuration is already in place an
 
 - Ensure that your DNS server does not block queries. If your on-premises DNS server accepts requests only from specific IP addresses, make sure that the IP range 35.199.192.0/19 is included.
 
-**Shared VPC** - The architecture is based on the assumption that there is a shared Prod & Non Prod VPC already configured and is available and the account used to create the resources have all the required permissions required to deploy the components in the architecture.
+**Shared VPC** 
+- The architecture is based on the assumption that there is a shared Prod & Non Prod VPC already configured and is available and the account used to create the resources have all the required permissions required to deploy the components in the architecture.
 
 
 ## Components
 
 ### Forwarding Zone
 * In this architecture we will designate the Prod Shared VPC as the network that will query the on-premises DNS servers and act as DNS hub.
-* This blueprint will create a Cloud DNS forwarding zone in the Prod Host project,targeting the on-premises DNS resolvers
+* This blueprint will create a Cloud DNS forwarding zone in the Prod Host project targeting the on-premises DNS resolvers
 
 ### Peering Zone
 * In this particular use case the  Non-Prod Shared VPC does not directly query the DNS servers on-premises and has to go through the Prod Shared VPC to access these DNS records.
